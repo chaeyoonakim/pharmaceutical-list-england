@@ -111,11 +111,12 @@ strict_equality = true
 
 [[tool.mypy.overrides]]
 module = [
+    "numpy.*",
     "pandas.*",
     "plotly.*",
     "streamlit.*",
 ]
-ignore_missing_imports = true
+ignore_errors = true
 
 [tool.coverage.run]
 source = ["src", "data", "dashboard"]
