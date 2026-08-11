@@ -1,0 +1,131 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pharmaceutical-list-england"
+version = "0.1.0"
+description = "Interactive map and statistics for England's community pharmacies, built on the NHSBSA Consolidated Pharmaceutical List"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+    {name = "Chae Yoon Yunakim"}
+]
+keywords = [
+    "pharmacy",
+    "nhs",
+    "england",
+    "open-data",
+    "nhsbsa",
+    "geospatial",
+    "streamlit",
+    "dashboard",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Healthcare Industry",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+]
+
+dependencies = [
+    "pandas>=2.2.0",
+    "numpy>=1.26.0",
+    "requests>=2.31.0",
+]
+
+[project.optional-dependencies]
+dashboard = [
+    "streamlit>=1.36.0",
+    "plotly>=5.22.0",
+]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.4.0",
+    "mypy>=1.10.0",
+    "pharmaceutical-list-england[dashboard]",
+]
+
+[project.urls]
+Homepage = "https://github.com/chaeyoonakim/pharmaceutical-list-england"
+Repository = "https://github.com/chaeyoonakim/pharmaceutical-list-england"
+Issues = "https://github.com/chaeyoonakim/pharmaceutical-list-england/issues"
+
+[tool.setuptools]
+packages = { find = { include = ["src*", "data*", "dashboard*"], exclude = ["tests*", "cache*"] } }
+
+[tool.ruff]
+target-version = "py310"
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # line too long, handled by formatter
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = [
+    "-v",
+    "--tb=short",
+    "--strict-markers",
+    "--strict-config",
+    "--cov=src",
+    "--cov=data",
+    "--cov=dashboard",
+    "--cov-report=term-missing",
+]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "pandas.*",
+    "plotly.*",
+    "streamlit.*",
+]
+ignore_missing_imports = true
+
+[tool.coverage.run]
+source = ["src", "data", "dashboard"]
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+]

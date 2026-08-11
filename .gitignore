@@ -216,3 +216,8 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- project-specific ---
+# Runtime caches (raw API responses, downloaded boundaries) — never committed.
+# data/static/ IS committed: it holds the built dataset the dashboard ships with.
+cache/
