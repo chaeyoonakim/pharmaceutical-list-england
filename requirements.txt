@@ -1,0 +1,7 @@
+# Hugging Face Space runtime dependencies.
+# streamlit itself is provided by the Space's `sdk: streamlit` /
+# `sdk_version` front-matter in README.md — do not pin it here.
+pandas>=2.2.0
+numpy>=1.26.0
+requests>=2.31.0
+plotly>=5.22.0
