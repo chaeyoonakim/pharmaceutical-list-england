@@ -1,31 +1,23 @@
 # pharmaceutical-list-england
 
-Interactive map and statistics for England's community pharmacies, built on the
-NHSBSA [Consolidated Pharmaceutical List](https://opendata.nhsbsa.net/dataset/consolidated-pharmaceutical-list)
-open data.
-
-Successor to
+Interactive map and statistics for England's community pharmacies, built on
+the NHSBSA
+[Consolidated Pharmaceutical List](https://opendata.nhsbsa.net/dataset/consolidated-pharmaceutical-list)
+open data. Successor to
 [pharmacy-analysis-with-open-data](https://github.com/chaeyoonakim/pharmacy-analysis-with-open-data),
-rebuilt around an interactive Streamlit dashboard.
+rebuilt around a Streamlit dashboard.
 
 ## Features
 
 - **Interactive England map** of every pharmacy in the Consolidated
-  Pharmaceutical List, with filters for NHS region, Integrated Care Board
-  (ICB), and contract type
-- **Postcode near me** — type any England postcode and get the nearest
-  pharmacies with distance, walking time, opening status, and directions
-- **Area statistics** — quarterly pharmacy counts, openings and closures, and
-  a next-year outlook from a transparent statistical trend model
-
-## Project layout
-
-```
-data/       all data-related scripts and data files (extract, transform, enrich, build CLIs)
-src/        library code (geo utilities, statistics)
-dashboard/  the Streamlit app
-tests/      offline test suite (no network required)
-```
+  Pharmaceutical List, filterable by NHS region, Integrated Care Board (ICB),
+  contract type, and quarter
+- **Postcode near me** — type any England postcode and get the five nearest
+  pharmacies with distance, walking time, open-now status, and a Google Maps
+  walking-directions link
+- **Area statistics** — quarterly pharmacy counts, true openings/closures
+  (ODS-code churn between snapshots), and a next-year outlook from a
+  transparent statistical trend model
 
 ## Quickstart
 
@@ -34,18 +26,96 @@ pip install -e ".[dashboard]"
 streamlit run dashboard/app.py
 ```
 
-Full documentation lands with the dashboard build-out — see the open pull
-requests.
+That works immediately on a fresh clone: with no built dataset present the
+app runs on a small bundled sample (and says so in a banner).
+
+### Building the full dataset
+
+On a machine with network access:
+
+```bash
+pip install -e ".[dev]"
+python -m data.build_geo_lookup   # geocode all pharmacy postcodes (postcodes.io)
+python -m data.build_dataset      # extract all quarters, enrich, write data/static/
+```
+
+Both commands are idempotent and cache aggressively (`cache/`, gitignored).
+They write:
+
+- `data/static/postcode_geo_lookup.csv.gz` — postcode → lat/lon/ICB/region
+- `data/static/pharmacy_quarters.csv.gz` — one row per pharmacy-quarter
+
+**Commit both files.** The dashboard (locally and on any deployment) then
+needs no API access at all; only the optional "postcode near me" live lookup
+and boundary outlines touch the network, and both degrade gracefully without
+it.
+
+### Adopting a newly published quarter
+
+NHSBSA publishes one snapshot per quarter. Append its resource ID (e.g.
+`CONSOL_PHARMACY_LIST_202526Q2`) to `quarterly_resources` in
+`data/extract.py`, re-run the two build commands, and commit the refreshed
+`data/static/` files. IDs the API doesn't recognise are logged and skipped,
+so adding a not-yet-published quarter is harmless.
+
+## Project layout
+
+```
+data/       all data-related scripts and files
+  extract.py          NHSBSA API extractor (ported from the predecessor repo)
+  transform.py        opening-hours + quarter parsing, tidy frame
+  enrich.py           postcode → lat/lon/ICB/region join
+  build_geo_lookup.py CLI: bulk-geocode every pharmacy postcode
+  build_dataset.py    CLI: build the static dataset (--sample = offline)
+  geo/                committed reference data (42 ICBs → 7 NHS regions)
+  sample/             offline fixtures so the app and tests run anywhere
+  static/             built dataset artifacts (committed once built)
+src/        library code
+  geo/                geocoding, ICB/region attribution, boundaries, distance
+  stats/              area trends, churn, discontinuity detection, forecast
+dashboard/  the Streamlit app (app.py + pure, tested logic modules)
+tests/      offline test suite — no network needed, HTTP fully mocked
+```
+
+## Methodology & honest caveats
+
+- **Counts** are unique pharmacy ODS codes per quarterly snapshot for the
+  selected area.
+- **Openings/closures** are set differences of ODS codes between consecutive
+  snapshots — true churn, not just net count deltas.
+- **Next-year outlook** fits a Theil–Sen line (median of pairwise slopes;
+  OLS available as an option) to the quarterly counts and projects four
+  quarters ahead with an approximate ±1.96·σ residual band, classified as
+  growth / stable / decline at a ±1% projected-change threshold.
+- **Snapshot discontinuities**: quarter-on-quarter jumps above 10% (the
+  2025-26 Q1 snapshot jumps ~23% nationally vs 2024-25 Q4) are flagged in
+  the UI as likely extraction artifacts, with a toggle to fit the trend on
+  post-jump quarters only. Theil–Sen is the default because it is robust to
+  a single level shift.
+- The forecast is a trend extrapolation over at most ~12 observations — not
+  a causal model. Its caveats are shown next to every projection.
+- **No dispensing volumes are shown.** The source list contains none, and
+  the predecessor project's "annual dispensing" figures were simulated
+  (random draws) — they were deliberately not ported.
 
 ## Data sources & attribution
 
-- Pharmacy data: NHSBSA Open Data Portal, Consolidated Pharmaceutical List —
-  released under the Open Government Licence v3.0
-- Postcode geocoding: [postcodes.io](https://postcodes.io) (ONS/OS open data,
-  OGL v3.0)
-- Boundaries: ONS Open Geography Portal (OGL v3.0)
+- Pharmacy data: NHSBSA Open Data Portal, Consolidated Pharmaceutical List
+- Postcode geocoding: [postcodes.io](https://postcodes.io) (ONS/OS open data)
+- ICB → NHS region reference: NHS England publications
+- Boundaries (optional overlay): ONS Open Geography Portal
 
-Contains public sector information licensed under the Open Government Licence v3.0.
+Contains public sector information licensed under the
+[Open Government Licence v3.0](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/).
+
+## Development
+
+```bash
+pip install -e ".[dev]"
+ruff check . && ruff format --check .
+mypy src data dashboard
+pytest
+```
 
 ## License
 
