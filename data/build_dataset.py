@@ -7,7 +7,7 @@ Usage:
 
 Extracts every configured quarter, tidies it, joins the postcode geo lookup,
 and writes ``data/static/pharmacy_quarters.csv.gz`` — commit the output so
-the dashboard (and the Hugging Face Space) needs no API access at runtime.
+the dashboard (locally and deployed) needs no API access at runtime.
 Run ``python -m data.build_geo_lookup`` first for a full build so geocoding
 coverage is complete.
 """

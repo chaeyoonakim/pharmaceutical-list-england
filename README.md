@@ -1,16 +1,3 @@
----
-title: England Pharmacy Map
-emoji: 💊
-colorFrom: blue
-colorTo: green
-sdk: streamlit
-sdk_version: "1.61.1"
-app_file: dashboard/app.py
-pinned: false
-license: mit
-short_description: Interactive map & stats for England's pharmacies
----
-
 # pharmaceutical-list-england
 
 Interactive map and statistics for England's community pharmacies, built on
@@ -19,6 +6,8 @@ the NHSBSA
 open data. Successor to
 [pharmacy-analysis-with-open-data](https://github.com/chaeyoonakim/pharmacy-analysis-with-open-data),
 rebuilt around a Streamlit dashboard.
+
+**Live app:** https://pharmaceutical-list-england.streamlit.app/
 
 ## Features
 
@@ -121,30 +110,25 @@ tests/      offline test suite — no network needed, HTTP fully mocked
 Contains public sector information licensed under the
 [Open Government Licence v3.0](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/).
 
-## Deployment (Hugging Face Space)
+## Deployment (Streamlit Community Cloud)
 
-The dashboard deploys as a Streamlit Space at
-`https://huggingface.co/spaces/chaeyoona/pharmaceutical-list-england`,
-kept in sync with `main` by `.github/workflows/sync-to-hf.yml`. The YAML
-front-matter at the top of this README is the Space configuration.
+The dashboard is deployed at
+**[pharmaceutical-list-england.streamlit.app](https://pharmaceutical-list-england.streamlit.app/)**
+via [Streamlit Community Cloud](https://streamlit.io/cloud), which deploys
+directly from this GitHub repository — no separate sync step required.
 
-One-time setup:
+One-time setup (already done for this repo):
 
-1. On [huggingface.co](https://huggingface.co/new-space) (logged in as
-   `chaeyoona`), create a **Streamlit** Space named
-   `pharmaceutical-list-england` (visibility your choice).
-2. Create a Hugging Face access token with **write** scope
-   (Settings → Access Tokens).
-3. In this GitHub repo: Settings → Secrets and variables → Actions → add a
-   repository secret named `HF_TOKEN` with that token.
-4. Push to `main` (or run the "Sync to Hugging Face Space" workflow
-   manually). The workflow force-pushes the repo to the Space, which then
-   builds from `requirements.txt` and serves `dashboard/app.py`.
+1. On [share.streamlit.io](https://share.streamlit.io/), sign in with GitHub
+   and select this repository.
+2. Branch: `main`. Main file path: `dashboard/app.py`.
+3. Deploy. Streamlit Cloud installs from `requirements.txt` and redeploys
+   automatically on every push to `main`.
 
-Build and commit `data/static/` first (see above) so the Space shows the
-full dataset rather than the bundled sample. The Space needs no API keys:
+Build and commit `data/static/` first (see above) so the deployed app shows
+the full dataset rather than the bundled sample. No API keys are needed:
 only the live postcode lookup and boundary outlines call external services,
-and both fall back gracefully.
+and both fall back gracefully if unreachable.
 
 ## Development
 

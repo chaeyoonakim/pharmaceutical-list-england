@@ -1,6 +1,5 @@
-# Hugging Face Space runtime dependencies.
-# streamlit itself is provided by the Space's `sdk: streamlit` /
-# `sdk_version` front-matter in README.md — do not pin it here.
+# Streamlit Cloud runtime dependencies.
+streamlit>=1.36.0
 pandas>=2.2.0
 numpy>=1.26.0
 requests>=2.31.0
