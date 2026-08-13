@@ -8,15 +8,24 @@ import plotly.graph_objects as go
 
 from src.stats.area_stats import AreaTrend, Forecast
 
-TREND_COLOUR = "#1f77b4"
-FORECAST_COLOUR = "#d62728"
-OPENINGS_COLOUR = "#2ca02c"
-CLOSURES_COLOUR = "#d62728"
+TREND_COLOUR = "#005eb8"  # NHS blue
+FORECAST_COLOUR = "#003087"  # NHS dark blue
+OPENINGS_COLOUR = "#007f3b"  # NHS green
+CLOSURES_COLOUR = "#d5281b"  # NHS red
 
 CLASSIFICATION_BADGES = {
-    "growth": ("📈 Growth likely", "The trend projects more pharmacies a year out."),
-    "stable": ("➡️ Broadly stable", "The trend projects little change a year out."),
-    "decline": ("📉 Decline likely", "The trend projects fewer pharmacies a year out."),
+    "growth": (
+        '<span class="nhs-badge-growth">📈 Growth likely</span>',
+        "The trend projects more pharmacies a year out.",
+    ),
+    "stable": (
+        '<span class="nhs-badge-stable">➡️ Broadly stable</span>',
+        "The trend projects little change a year out.",
+    ),
+    "decline": (
+        '<span class="nhs-badge-decline">📉 Decline likely</span>',
+        "The trend projects fewer pharmacies a year out.",
+    ),
 }
 
 
@@ -64,7 +73,7 @@ def trend_figure(trend: AreaTrend, forecast: Forecast | None) -> go.Figure:
                 x=[*x, *x[::-1]],
                 y=[*upper, *lower[::-1]],
                 fill="toself",
-                fillcolor="rgba(214, 39, 40, 0.12)",
+                fillcolor="rgba(0, 48, 135, 0.12)",
                 line={"width": 0},
                 hoverinfo="skip",
                 name="Approx. 95% band",
