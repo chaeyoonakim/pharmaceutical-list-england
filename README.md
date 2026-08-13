@@ -1,4 +1,4 @@
-# pharmaceutical-list-england
+# 💊 England pharmacy map
 
 Interactive map and statistics for England's community pharmacies, built on
 the NHSBSA
@@ -109,26 +109,6 @@ tests/      offline test suite — no network needed, HTTP fully mocked
 
 Contains public sector information licensed under the
 [Open Government Licence v3.0](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/).
-
-## Deployment (Streamlit Community Cloud)
-
-The dashboard is deployed at
-**[pharmaceutical-list-england.streamlit.app](https://pharmaceutical-list-england.streamlit.app/)**
-via [Streamlit Community Cloud](https://streamlit.io/cloud), which deploys
-directly from this GitHub repository — no separate sync step required.
-
-One-time setup (already done for this repo):
-
-1. On [share.streamlit.io](https://share.streamlit.io/), sign in with GitHub
-   and select this repository.
-2. Branch: `main`. Main file path: `dashboard/app.py`.
-3. Deploy. Streamlit Cloud installs from `requirements.txt` and redeploys
-   automatically on every push to `main`.
-
-Build and commit `data/static/` first (see above) so the deployed app shows
-the full dataset rather than the bundled sample. No API keys are needed:
-only the live postcode lookup and boundary outlines call external services,
-and both fall back gracefully if unreachable.
 
 ## Development
 
