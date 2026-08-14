@@ -14,12 +14,20 @@ rebuilt around a Streamlit dashboard.
 - **Interactive England map** of every pharmacy in the Consolidated
   Pharmaceutical List, filterable by NHS region, Integrated Care Board (ICB),
   contract type, and quarter
+- **Custom areas** — combine several ICBs into a named area to view and
+  compare, the same place-based approach as the NHS AIF Allocation Tool
+  applied at ICB level: save multiple areas in a session, export/import them
+  as JSON, and download a ZIP of the underlying data plus methodology notes
 - **Postcode near me** — type any England postcode and get the five nearest
   pharmacies with distance, walking time, open-now status, and a Google Maps
   walking-directions link
 - **Area statistics** — quarterly pharmacy counts, true openings/closures
   (ODS-code churn between snapshots), and a next-year outlook from a
   transparent statistical trend model
+- **NHS Digital Service Manual styling** — NHS blue theme, logo header, and
+  colour palette matching this portfolio's other NHS tools ([AIF Allocation
+  Tool](https://github.com/nhsengland/AIF_Allocation_Tool),
+  [HeartLink](https://github.com/chaeyoonakim/heartlink-kiro-nhs))
 
 ## Quickstart
 
@@ -75,7 +83,12 @@ data/       all data-related scripts and files
 src/        library code
   geo/                geocoding, ICB/region attribution, boundaries, distance
   stats/              area trends, churn, discontinuity detection, forecast
-dashboard/  the Streamlit app (app.py + pure, tested logic modules)
+dashboard/  the Streamlit app
+  app.py              thin Streamlit entry point, wires the modules below
+  theme.py            NHS colour palette, header banner, CSS injection
+  area_builder.py     custom-area (multi-ICB) logic: save/export/import/zip
+  data_access.py, map_view.py, stats_view.py, finder_logic.py
+                       pure, tested logic modules
 tests/      offline test suite — no network needed, HTTP fully mocked
 ```
 

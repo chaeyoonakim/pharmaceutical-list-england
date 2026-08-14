@@ -8,11 +8,11 @@ import pandas as pd
 import plotly.graph_objects as go
 
 CONTRACT_COLOURS = {
-    "Community": "#1f77b4",
-    "Appliance": "#ff7f0e",
-    "LPS": "#2ca02c",
+    "Community": "#005eb8",  # NHS blue
+    "Appliance": "#003087",  # NHS dark blue
+    "LPS": "#007f3b",  # NHS green
 }
-DEFAULT_COLOUR = "#7f7f7f"
+DEFAULT_COLOUR = "#4c6272"  # NHS grey
 ENGLAND_CENTER = {"lat": 52.8, "lon": -1.5}
 ENGLAND_ZOOM = 5.3
 
@@ -63,7 +63,7 @@ def build_map_figure(
                 lon=[user_point[1]],
                 mode="markers",
                 name="You",
-                marker={"size": 16, "color": "#d62728", "symbol": "circle"},
+                marker={"size": 16, "color": "#d5281b", "symbol": "circle"},
                 text=["Your postcode"],
                 hoverinfo="text",
             )
