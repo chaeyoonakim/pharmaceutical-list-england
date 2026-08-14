@@ -34,7 +34,9 @@ def build_map_figure(
 
     ``boundaries`` (optional GeoJSON FeatureCollection) is drawn as outline
     layers beneath the markers. ``user_point`` adds a distinct marker for
-    the visitor's own postcode location.
+    the visitor's own postcode location and takes over the map's zoom/
+    center (a tight neighbourhood view) in place of the marker frame's own
+    bounds — a postcode search narrows the map's scope to that search.
     """
     fig = go.Figure()
 
@@ -80,7 +82,12 @@ def build_map_figure(
             }
         )
 
-    if len(frame) > 0:
+    if user_point is not None:
+        # A postcode search sets the map's scope: zoom in tight on the
+        # visitor's location regardless of the marker frame's own bounds.
+        center = {"lat": user_point[0], "lon": user_point[1]}
+        zoom = 13.0
+    elif len(frame) > 0:
         center = {
             "lat": float(frame["lat"].mean()),
             "lon": float(frame["lon"].mean()),
