@@ -221,41 +221,10 @@ def main() -> None:
         area_df = data_access.filter_area(df, region, icb, contract_types or None)
         area_label = icb if icb != data_access.ALL_ICBS else region
 
-    # ---------------- map ----------------
-    quarter_df = data_access.quarter_slice(area_df, quarter)
-    mappable_df = data_access.mappable(quarter_df)
-    unmapped = len(quarter_df) - len(mappable_df)
-
-    with st.container(border=True):
-        st.subheader(f"{area_label} — {quarter}")
-        st.markdown(
-            f"**{len(quarter_df)}** pharmacies in this selection"
-            + (
-                f" ({unmapped} without coordinates, not shown on the map)"
-                if unmapped
-                else ""
-            )
-        )
-
-        boundary_geojson = None
-        if show_boundaries:
-            boundary_geojson = _load_boundaries(
-                "icb"
-                if icb != data_access.ALL_ICBS or region == data_access.ALL_ENGLAND
-                else "region"
-            )
-            if boundary_geojson is None:
-                st.info(
-                    "Boundary outlines unavailable (no cached copy and no network "
-                    "access to the ONS Open Geography Portal)."
-                )
-
-        st.plotly_chart(
-            map_view.build_map_figure(mappable_df, boundary_geojson),
-            use_container_width=True,
-        )
+    latest_quarter = data_access.quarter_options(df)[0]
 
     # ---------------- near me ----------------
+    user_point: GeoPoint | None = None
     with st.container(border=True):
         st.subheader("📍 Pharmacies near me")
         st.caption(
@@ -286,7 +255,6 @@ def main() -> None:
                 )
             else:
                 user_point = GeoPoint(info.lat, info.lon)
-                latest_quarter = data_access.quarter_options(df)[0]
                 nearest = finder_logic.nearest_pharmacies(
                     user_point,
                     data_access.quarter_slice(df, latest_quarter),
@@ -298,7 +266,8 @@ def main() -> None:
                 else:
                     st.markdown(
                         f"Nearest pharmacies to **{user_postcode.upper().strip()}** "
-                        f"({latest_quarter} list):"
+                        f"({latest_quarter} list) — the map below zooms to this "
+                        "location:"
                     )
                     display = nearest.rename(
                         columns={
@@ -323,6 +292,57 @@ def main() -> None:
                             )
                         },
                     )
+
+    # ---------------- map ----------------
+    # A postcode search narrows the map's scope to that location; otherwise
+    # the map's scope follows the sidebar's region/ICB/custom-area filter.
+    if user_point is not None:
+        map_scope_df = data_access.quarter_slice(df, latest_quarter)
+        if contract_types:
+            map_scope_df = map_scope_df[
+                map_scope_df["contract_type"].isin(contract_types)
+            ]
+        map_label = f"Near {user_postcode.upper().strip()}"
+    else:
+        map_scope_df = data_access.quarter_slice(area_df, quarter)
+        map_label = f"{area_label} — {quarter}"
+    mappable_df = data_access.mappable(map_scope_df)
+    unmapped = len(map_scope_df) - len(mappable_df)
+
+    with st.container(border=True):
+        st.subheader(map_label)
+        st.markdown(
+            f"**{len(map_scope_df)}** pharmacies in this selection"
+            + (
+                f" ({unmapped} without coordinates, not shown on the map)"
+                if unmapped
+                else ""
+            )
+        )
+
+        boundary_geojson = None
+        if show_boundaries and user_point is None:
+            boundary_geojson = _load_boundaries(
+                "icb"
+                if icb != data_access.ALL_ICBS or region == data_access.ALL_ENGLAND
+                else "region"
+            )
+            if boundary_geojson is None:
+                st.info(
+                    "Boundary outlines unavailable (no cached copy and no network "
+                    "access to the ONS Open Geography Portal)."
+                )
+
+        st.plotly_chart(
+            map_view.build_map_figure(
+                mappable_df,
+                boundary_geojson,
+                user_point=(user_point.lat, user_point.lon)
+                if user_point is not None
+                else None,
+            ),
+            use_container_width=True,
+        )
 
     # ---------------- statistics ----------------
     with st.container(border=True):
